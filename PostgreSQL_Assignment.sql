@@ -13,7 +13,6 @@ CREATE TABLE species (
     conservation_status VARCHAR(50) CHECK (conservation_status IN ('Endangered', 'Vulnerable', 'Historic', 'Critically Endangered'))
 );
 
-SELECT * FROM species;
 CREATE TABLE sightings (
     sighting_id SERIAL PRIMARY KEY,
     species_id int NOT NULL,
@@ -25,6 +24,8 @@ CREATE TABLE sightings (
     FOREIGN KEY (ranger_id) REFERENCES rangers(ranger_id)
 );
 
+-- SELECT * FROM sightings;
+-- DROP TABLE species;
 INSERT INTO rangers (ranger_id, name, region) VALUES
 (1, 'Alice Green', 'Northern Hills'),
 (2, 'Bob White', 'River Delta'),
@@ -38,8 +39,8 @@ INSERT INTO species (species_id, common_name, scientific_name, discovery_date, c
 (2, 'Bengal Tiger', 'Panthera tigris tigris', '1758-01-01', 'Endangered'),
 (3, 'Red Panda', 'Ailurus fulgens', '1825-01-01', 'Vulnerable'),
 (4, 'Asiatic Elephant', 'Elephas maximus indicus', '1758-01-01', 'Endangered'),
-(5, 'Shadow Leopard', 'Panthera nebulosa', '1895-03-14', 'Least Concern'),
-(6, 'Great Indian Bustard', 'Ardeotis nigriceps', '1861-01-01', 'Least Concern'),
+(5, 'Shadow Leopard', 'Panthera nebulosa', '1895-03-14', 'Critically Endangered'),
+(6, 'Great Indian Bustard', 'Ardeotis nigriceps', '1861-01-01', 'Critically Endangered'),
 (7, 'Indian Pangolin', 'Manis crassicaudata', '1821-07-01', 'Endangered'),
 (8, 'Sloth Bear', 'Melursus ursinus', '1791-04-12', 'Vulnerable');
 
@@ -64,33 +65,35 @@ INSERT INTO sightings (sighting_id, species_id, ranger_id, location, sighting_ti
 
 
 
--- Problem 1: Register a new ranger with name = 'Derek Fox' and region = 'Coastal Plains'
+-- Problem 1:
 INSERT INTO rangers (ranger_id, name, region)
 VALUES (7, 'Derek Fox', 'Coastal Plains');
 
+-- SELECT * FROM rangers;
 
--- Problem 2: Count unique species ever sighted
+-- Problem 2: 
 SELECT COUNT(DISTINCT species_id) AS unique_species_count
 FROM sightings;
 
--- Problem 3: Find all sightings where the location includes "Pass"
+
+-- Problem 3:
 SELECT *
 FROM sightings
 WHERE location ILIKE '%Pass%';
 
--- Problem 4: List each ranger's name and their total number of sightings
+-- Problem 4:
 SELECT r.name, COUNT(s.sighting_id) AS total_sightings
 FROM rangers r
 LEFT JOIN sightings s ON r.ranger_id = s.ranger_id
 GROUP BY r.name;
 
--- Problem 5: List species that have never been sighted
+-- Problem 5: 
 SELECT s.common_name
 FROM species s
 LEFT JOIN sightings si ON s.species_id = si.species_id
 WHERE si.species_id IS NULL;
 
--- Problem 6: Show the most recent 2 sightings
+-- Problem 6:
 SELECT sp.common_name, si.sighting_time, r.name
 FROM sightings si
 JOIN species sp ON si.species_id = sp.species_id
@@ -98,12 +101,13 @@ JOIN rangers r ON si.ranger_id = r.ranger_id
 ORDER BY si.sighting_time DESC
 LIMIT 2;
 
--- Problem 7: Update all species discovered before year 1800 to have status 'Historic'
+-- Problem 7:
 UPDATE species
 SET conservation_status = 'Historic'
 WHERE discovery_date < '1800-01-01';
+-- SELECT * FROM species;
 
--- Problem 8: Label each sighting's time of day as 'Morning', 'Afternoon', or 'Evening'
+-- Problem 8:
 SELECT sighting_id,
        CASE
            WHEN EXTRACT(HOUR FROM sighting_time) < 12 THEN 'Morning'
@@ -112,13 +116,13 @@ SELECT sighting_id,
        END AS time_of_day
 FROM sightings;
 
--- Problem 9: Delete rangers who have never sighted any species
+-- Problem 9:
 DELETE FROM rangers
 WHERE ranger_id NOT IN (
     SELECT DISTINCT ranger_id FROM sightings
 );
 
-
+-- SELECT * FROM rangers;
 
 
 
