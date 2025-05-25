@@ -1,4 +1,4 @@
-# PostgreSQL Q&A
+#  PostgreSQL Learning Notes
 
 ---
 
