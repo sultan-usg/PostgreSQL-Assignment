@@ -26,6 +26,7 @@ CREATE TABLE sightings (
 
 -- SELECT * FROM sightings;
 -- DROP TABLE species;
+
 INSERT INTO rangers (ranger_id, name, region) VALUES
 (1, 'Alice Green', 'Northern Hills'),
 (2, 'Bob White', 'River Delta'),
@@ -59,22 +60,14 @@ INSERT INTO sightings (sighting_id, species_id, ranger_id, location, sighting_ti
 
 
 
-
-
-
-
-
-
 -- Problem 1:
 INSERT INTO rangers (ranger_id, name, region)
 VALUES (7, 'Derek Fox', 'Coastal Plains');
-
 -- SELECT * FROM rangers;
 
 -- Problem 2: 
 SELECT COUNT(DISTINCT species_id) AS unique_species_count
 FROM sightings;
-
 
 -- Problem 3:
 SELECT *
@@ -105,7 +98,6 @@ LIMIT 2;
 UPDATE species
 SET conservation_status = 'Historic'
 WHERE discovery_date < '1800-01-01';
--- SELECT * FROM species;
 
 -- Problem 8:
 SELECT sighting_id,
