@@ -10,9 +10,10 @@ CREATE TABLE species (
     common_name VARCHAR(100) NOT NULL,
     scientific_name VARCHAR(150) NOT NULL,
     discovery_date DATE NOT NULL,
-    conservation_status VARCHAR(50) CHECK (conservation_status IN ('Endangered', 'Vulnerable', 'Least Concern'))
+    conservation_status VARCHAR(50) CHECK (conservation_status IN ('Endangered', 'Vulnerable', 'Historic', 'Critically Endangered'))
 );
 
+SELECT * FROM species;
 CREATE TABLE sightings (
     sighting_id SERIAL PRIMARY KEY,
     species_id int NOT NULL,
@@ -24,7 +25,6 @@ CREATE TABLE sightings (
     FOREIGN KEY (ranger_id) REFERENCES rangers(ranger_id)
 );
 
--- rangers
 INSERT INTO rangers (ranger_id, name, region) VALUES
 (1, 'Alice Green', 'Northern Hills'),
 (2, 'Bob White', 'River Delta'),
@@ -33,10 +33,6 @@ INSERT INTO rangers (ranger_id, name, region) VALUES
 (5, 'Ella Stone', 'Desert Plains'),
 (6, 'Farid Khan', 'Eastern Valley');
 
-
--- DELETE FROM rangers;
-SELECT * FROM rangers;
--- species
 INSERT INTO species (species_id, common_name, scientific_name, discovery_date, conservation_status) VALUES
 (1, 'Snow Leopard', 'Panthera uncia', '1775-01-01', 'Endangered'),
 (2, 'Bengal Tiger', 'Panthera tigris tigris', '1758-01-01', 'Endangered'),
@@ -46,8 +42,6 @@ INSERT INTO species (species_id, common_name, scientific_name, discovery_date, c
 (6, 'Great Indian Bustard', 'Ardeotis nigriceps', '1861-01-01', 'Least Concern'),
 (7, 'Indian Pangolin', 'Manis crassicaudata', '1821-07-01', 'Endangered'),
 (8, 'Sloth Bear', 'Melursus ursinus', '1791-04-12', 'Vulnerable');
-
-SELECT * FROM species;
 
 INSERT INTO sightings (sighting_id, species_id, ranger_id, location, sighting_time, notes) VALUES
 (1, 1, 1, 'Peak Ridge', '2024-05-10 07:45:00', 'Camera trap image captured'),
@@ -61,9 +55,68 @@ INSERT INTO sightings (sighting_id, species_id, ranger_id, location, sighting_ti
 (9, 1, 1, 'High Snow Trail', '2024-05-25 07:20:00', 'Fresh paw prints found'),
 (10, 8, 2, 'Hollow Tree Forest', '2024-05-25 15:30:00', 'Seen climbing tree');
 
-SELECT * FROM sightings;
 
 
+
+
+
+
+
+
+
+-- Problem 1: Register a new ranger with name = 'Derek Fox' and region = 'Coastal Plains'
+INSERT INTO rangers (ranger_id, name, region)
+VALUES (7, 'Derek Fox', 'Coastal Plains');
+
+
+-- Problem 2: Count unique species ever sighted
+SELECT COUNT(DISTINCT species_id) AS unique_species_count
+FROM sightings;
+
+-- Problem 3: Find all sightings where the location includes "Pass"
+SELECT *
+FROM sightings
+WHERE location ILIKE '%Pass%';
+
+-- Problem 4: List each ranger's name and their total number of sightings
+SELECT r.name, COUNT(s.sighting_id) AS total_sightings
+FROM rangers r
+LEFT JOIN sightings s ON r.ranger_id = s.ranger_id
+GROUP BY r.name;
+
+-- Problem 5: List species that have never been sighted
+SELECT s.common_name
+FROM species s
+LEFT JOIN sightings si ON s.species_id = si.species_id
+WHERE si.species_id IS NULL;
+
+-- Problem 6: Show the most recent 2 sightings
+SELECT sp.common_name, si.sighting_time, r.name
+FROM sightings si
+JOIN species sp ON si.species_id = sp.species_id
+JOIN rangers r ON si.ranger_id = r.ranger_id
+ORDER BY si.sighting_time DESC
+LIMIT 2;
+
+-- Problem 7: Update all species discovered before year 1800 to have status 'Historic'
+UPDATE species
+SET conservation_status = 'Historic'
+WHERE discovery_date < '1800-01-01';
+
+-- Problem 8: Label each sighting's time of day as 'Morning', 'Afternoon', or 'Evening'
+SELECT sighting_id,
+       CASE
+           WHEN EXTRACT(HOUR FROM sighting_time) < 12 THEN 'Morning'
+           WHEN EXTRACT(HOUR FROM sighting_time) BETWEEN 12 AND 17 THEN 'Afternoon'
+           ELSE 'Evening'
+       END AS time_of_day
+FROM sightings;
+
+-- Problem 9: Delete rangers who have never sighted any species
+DELETE FROM rangers
+WHERE ranger_id NOT IN (
+    SELECT DISTINCT ranger_id FROM sightings
+);
 
 
 
